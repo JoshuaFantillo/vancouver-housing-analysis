@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Graphs Menu</title>
+    <style>
+        body {
+            background-image: url('static/pictures/main-menu-vancouver.jpg');
+            background-size: cover; 
+            background-position: center; 
+        }
+        #map { height: 100vh; }
+        #slider-container {
+            position: absolute;
+            top: 110px; 
+            left: 10px;
+            z-index: 1000;
+        }
+        #legend-image {
+            position: absolute;
+            bottom: 50px; 
+            left: 10px; 
+            z-index: 1001; 
+            max-width: 200px; 
+            max-height: 400px; 
+        }
+        .map-overlay {
+            position: absolute;
+            top: 170px; 
+            left: 10px;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+        #graph-display img {
+            max-width: 100%;
+            height: auto;
+        }
+        .back-button {
+            background-color: #007bff;
+            border: none;
+            color: white;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s ease;
+            width: 180px
+        }
+        .graph-selector{
+            background-color: #007bff;
+            border: none;
+            color: white;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s ease;
+            width: 480px
+
+        }
+    </style>
+</head>
+<body>
+    <button onclick="window.history.back()" class="back-button">Back</button>
+    <div style="text-align:center; margin-top:20px;">
+        <select id="graph-selector" class="graph-selector" onchange="changeGraph()">
+            <option value="improvement_value_vs_construction">Improvement Value and Construction VS Year</option>
+            <option value="land_value_vs_construction">Land Value and Construction VS Year</option>
+            <option value="plot_land_value_vs_improvement">Land Value vs Improvement Value</option>
+            <option value="land_value_vs_construction_percent_change">Percent Change of Land Value and Construction VS Year</option>
+            <option value="improvement_value_vs_construction_percent_change">Percent Change of Improvement Value and Construction VS Year</option>
+            <option value="plot_land_vs_improvement_percent_change">Percent Change of Land vs Improvement Value</option>
+        </select>
+        <div id="graph-display">
+            
+        </div>
+    </div>
+    <script>
+        function changeGraph() {
+            var selector = document.getElementById("graph-selector");
+            var selectedValue = selector.value;
+            var displayArea = document.getElementById("graph-display");
+
+            
+            var imagePath = `/static/pictures/${selectedValue}.png`;
+
+     
+            displayArea.innerHTML = `<img src="${imagePath}" alt="${selectedValue}">`;
+        }
+        
+       
+        changeGraph();
+    </script>
+</body>
+</html>

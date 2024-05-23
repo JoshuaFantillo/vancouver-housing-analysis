@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Main Menu</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+        }
+        .image-container {
+            position: relative;
+            text-align: center;
+            color: white;
+            min-height: 600px;
+        }
+        .centered-buttons {
+            position: absolute;
+            top: 30%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .menu-button {
+            background-color: #007bff;
+            border: none;
+            color: white;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s ease;
+            width: 180px
+        }
+        .menu-button:hover {
+            width: 200px
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="image-container">
+        <img src="{{ url_for('static', filename='pictures/main-menu-vancouver.jpg') }}" alt="Vancouver Image" style="width:100%; height:100%; object-fit:cover;">
+        <div class="centered-buttons">
+            <button onclick="window.location.href='/interactive_map'" class="menu-button">Interactive Map</button>
+            <button onclick="window.location.href='/graphs'" class="menu-button">Graphs</button>
+        </div>
+    </div>
+</body>
+</html>

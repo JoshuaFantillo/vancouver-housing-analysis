@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Metro Vancouver Map with Custom Mapbox Style</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css" />
+    <style>
+        #map { height: 100vh; }
+        #slider-container {
+            position: absolute;
+            top: 110px; 
+            left: 10px;
+            z-index: 1000;
+        }
+        #legend-image {
+            position: absolute;
+            bottom: 50px; 
+            left: 10px; 
+            z-index: 1001; 
+            max-width: 300px; 
+            max-height: 450px; 
+        }
+        .map-overlay {
+            position: absolute;
+            top: 170px; 
+            left: 10px;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+        .slider, #year-input {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 15px;
+            background: #ddd;
+            outline: none;
+            opacity: 0.7;
+            transition: opacity .2s;
+        }
+        .slider:hover, #year-input:hover {
+            opacity: 1;
+        }
+        .slider::-webkit-slider-thumb, #year-input::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 25px;
+            height: 25px;
+            background: #081f33;
+            cursor: pointer;
+        }
+        .slider::-moz-range-thumb, #year-input::-moz-range-thumb {
+            width: 25px;
+            height: 25px;
+            background: #040c1b;
+            cursor: pointer;
+        }
+        #dataset-selector {
+            padding: 5px;
+            font-size: 14px;
+            width: 100%;
+            margin-top: 10px; 
+        }
+        .marker-cluster {
+            background-clip: padding-box;
+            border-radius: 50%;
+            height: 40px;
+            width: 40px;
+        }
+        .back-button {
+            background-color: #007bff;
+            border: none;
+            color: white;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s ease;
+            width: 180px
+        }
+    </style>
+</head>
+<body>
+    <button onclick="window.history.back()"class="back-button">Back</button>
+    <div id="map"></div>
+    <div id="slider-container">
+        <input type="range" min="2006" max="2034" value="2024" class="slider" id="year-slider">
+        <input type="number" id="year-input" min="2006" max="2034" value="2024" style="width: 70px;">
+    </div>
+    <div class="map-overlay">
+        <select id="dataset-selector">
+            <option value="land">Land Value</option>
+            <option value="improvement">Improvement Value</option>
+        </select>
+    </div>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
+    <script>
+        var map = L.map('map').setView([49.25, -123.1], 10);
+        map.dragging.enable();
+
+        L.tileLayer('https://api.mapbox.com/styles/v1/joshuafantillo/clt9gvwsx007101r55wga70lt/tiles/{z}/{x}/{y}?access_token=pk.eyJ1Ijoiam9zaHVhZmFudGlsbG8iLCJhIjoiY2x0OWg3bWJoMTZ0cDJrbzh0eXVtdmV2MiJ9.IndTSgxSNWBEeCgUUNdKhQ', {
+            attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+            maxZoom: 18,
+            tileSize: 512,
+            zoomOffset: -1
+        }).addTo(map);
+        var globalValueMin = null;
+        var globalValueMax = null;
+        var markersLayer = new L.markerClusterGroup({
+            maxClusterRadius: 30,
+            iconCreateFunction: function(cluster) {
+                var children = cluster.getAllChildMarkers();
+                var sum = 0;
+                for (var i = 0; i < children.length; i++) {
+                    sum += children[i].options.intensityValue;
+                }
+                var average = sum / children.length;
+                var color = getColorForIntensity(average); 
+                return L.divIcon({
+                    html: '<div style="width: 20px; height: 20px; border-radius: 50%; background-color: ' + color + ';"></div>',
+                    className: 'marker-cluster',
+                    iconSize: new L.Point(20, 20)
+                });
+            },
+            showCoverageOnHover: false,
+            zoomToBoundsOnClick: true
+        }).addTo(map);
+    
+        var yearSlider = document.getElementById('year-slider');
+        var yearInput = document.getElementById('year-input');
+        var datasetSelector = document.getElementById('dataset-selector');
+    
+        function updateMapData(selectedYear, dataType) {
+            fetch(`/data/coordinates?year=${selectedYear}&type=${dataType}`)
+                .then(response => response.json())
+                .then(data => {
+                    markersLayer.clearLayers(); 
+                    data.coords.forEach(function(item) {
+                        const intensityValue = item.log; 
+                        const color = getColorForIntensity(intensityValue);
+                        var marker = L.circleMarker([item.LATITUDE, item.LONGITUDE], {
+                            color: color,
+                            fillColor: color,
+                            fillOpacity: .7,
+                            radius: 4 
+                        });
+                        marker.options.intensityValue = intensityValue;
+                        markersLayer.addLayer(marker); 
+                    });
+                    updateLegendImage(dataType);
+                })
+                .catch(error => console.error('Error:', error));
+        }
+        
+        var legend = L.control({position: 'bottomleft'});
+
+        function updateLegendImage(dataType) {
+            var legendImageSrc = `/static/pictures/${dataType}_value_legend.png`; 
+            var legendImg = document.getElementById('legend-image');
+            if (!legendImg) {
+                legendImg = document.createElement('img');
+                legendImg.id = 'legend-image';
+                legendImg.style.position = 'absolute';
+                legendImg.style.bottom = '10px'; 
+                legendImg.style.left = '10px'; 
+                document.body.appendChild(legendImg); 
+            }
+            legendImg.src = legendImageSrc; 
+        }
+        
+        datasetSelector.addEventListener('change', function() {
+            updateMapData(yearSlider.value, this.value);
+            updateLegendImage(this.value); 
+        });
+
+        updateLegendImage(datasetSelector.value);
+        
+        function calculateIntermediateValues(min, max, steps = 4) {
+            var range = max - min;
+            var stepSize = range / steps;
+            var values = [];
+            for (var i = 1; i < steps; i++) {
+                values.push(min + i * stepSize);
+            }
+            return values;
+        }
+
+        function getColorForIntensity(intensity) {
+            if (intensity <= 0.07) return '#0D47A1'; // Dark Blue
+            else if (intensity <= 0.14) return '#1565C0'; // Cobalt Blue
+            else if (intensity <= 0.21) return '#1976D2'; // Dodger Blue
+            else if (intensity <= 0.28) return '#1E88E5'; // Cornflower Blue
+            else if (intensity <= 0.35) return '#2196F3'; // Sky Blue
+            else if (intensity <= 0.42) return '#26A69A'; // Light Sea Green
+            else if (intensity <= 0.49) return '#2E7D32'; // Forest Green
+            else if (intensity <= 0.56) return '#558B2F'; // Olive Green
+            else if (intensity <= 0.63) return '#9E9D24'; // Dark Khaki
+            else if (intensity <= 0.70) return '#F9A825'; // Mustard Yellow
+            else if (intensity <= 0.77) return '#FF8F00'; // Amber
+            else if (intensity <= 0.84) return '#EF6C00'; // Orange
+            else if (intensity <= 0.91) return '#D84315'; // Terra Cotta
+            else if (intensity <= 0.98) return '#BF360C'; // Dark Orange
+            else return '#B71C1C'; // Dark Red
+        }
+    
+        yearSlider.addEventListener('input', function() {
+            yearInput.value = this.value;
+            updateMapData(this.value, datasetSelector.value);
+        });
+    
+        yearInput.addEventListener('change', function() {
+            var year = parseInt(this.value);
+            if(year >= 2006 && year <= 2034) {
+                yearSlider.value = year;
+                updateMapData(year, datasetSelector.value);
+            } else {
+                this.value = yearSlider.value;
+            }
+        });
+
+        datasetSelector.addEventListener('change', function() {
+            updateMapData(yearSlider.value, this.value);
+        });
+        updateMapData(yearSlider.value, datasetSelector.value);
+    </script>
+</body>
+</html>
+        
