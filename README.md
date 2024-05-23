@@ -61,3 +61,6 @@ For any inquiries or further information, please contact us at
 [houli_huang@sfu.ca](mailto:houli_huang@sfu.ca)  
 [zha92@sfu.ca](mailto:zha92@sfu.ca)  
 [tayaba_abbasi@sfu.ca](mailto:tayaba_abbasi@sfu.ca)  
+
+### Project Video 
+- https://www.youtube.com/watch?v=KLs9jWV99I8
