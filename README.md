@@ -54,6 +54,12 @@ Once running you can access on your local host on port 5000 in your web browser.
 ### Acknowledgements
 We acknowledge the support from the municipal data providers and all contributors who have helped in data collection, cleaning, and tool development.
 
+### Project Video 
+- https://www.youtube.com/watch?v=KLs9jWV99I8
+
+### Project Report
+You can find the detailed report in this [PDF file](Analyzing%20Housing%20Affordability%20in%20Metro%20Vancouver.pdf).
+
 ### Contact
 For any inquiries or further information, please contact us at  
 [gunnar_miller@sfu.ca](mailto:gunnar_miller@sfu.ca)  
@@ -62,8 +68,3 @@ For any inquiries or further information, please contact us at
 [zha92@sfu.ca](mailto:zha92@sfu.ca)  
 [tayaba_abbasi@sfu.ca](mailto:tayaba_abbasi@sfu.ca)  
 
-### Project Video 
-- https://www.youtube.com/watch?v=KLs9jWV99I8
-
-### Project Report
-You can find the detailed report in this [PDF file](Analyzing%20Housing%20Affordability%20in%20Metro%20Vancouver.pdf).
