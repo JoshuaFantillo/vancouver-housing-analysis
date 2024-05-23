@@ -66,4 +66,4 @@ For any inquiries or further information, please contact us at
 - https://www.youtube.com/watch?v=KLs9jWV99I8
 
 ### Project Report
-You can find the detailed report in this [PDF file](Analyzing Housing Affordability in Metro Vancouver.pdf).
+You can find the detailed report in this [PDF file](Analyzing%20Housing%20Affordability%20in%20Metro%20Vancouver.pdf).
